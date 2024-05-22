@@ -36,8 +36,6 @@ func NewSimpleBlockWriter(w0 io.WriteCloser, tracks []TrackEntry, opts ...mkvcor
 	}
 	options := []mkvcore.BlockWriterOption{
 		mkvcore.WithEBMLHeader(DefaultEBMLHeader),
-		mkvcore.WithSegmentInfo(DefaultSegmentInfo),
-		mkvcore.WithBlockInterceptor(DefaultBlockInterceptor),
 	}
 	options = append(options, opts...)
 	ws, err := mkvcore.NewSimpleBlockWriter(w0, trackDesc, options...)
