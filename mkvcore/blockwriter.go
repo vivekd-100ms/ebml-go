@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"sync"
+	"time"
 
 	"github.com/at-wat/ebml-go"
 )
@@ -188,8 +189,15 @@ func NewSimpleBlockWriter(w0 io.WriteCloser, tracks []TrackDescription, opts ...
 			<-fin // read one data to release blocked Close()
 		}()
 
+		lastDebugLogTime := time.Now()
+		written := 0
 	L_WRITE:
 		for {
+			if time.Since(lastDebugLogTime) > 5*time.Second {
+				lastDebugLogTime = time.Now()
+				fmt.Printf("blockwriter data rates written: %d", written)
+				written = 0
+			}
 			select {
 			case <-closed:
 				break L_WRITE
@@ -218,10 +226,13 @@ func NewSimpleBlockWriter(w0 io.WriteCloser, tracks []TrackDescription, opts ...
 							options.onFatal(err)
 						}
 						return
+					} else {
+						written++
 					}
 				}
 				if tc <= -0x7FFF {
 					// Ignore too old frame
+					fmt.Printf("blockwriter error: %v", ErrIgnoreOldFrame)
 					if options.onError != nil {
 						options.onError(ErrIgnoreOldFrame)
 					}
@@ -244,6 +255,8 @@ func NewSimpleBlockWriter(w0 io.WriteCloser, tracks []TrackDescription, opts ...
 						options.onFatal(err)
 					}
 					return
+				} else {
+					written++
 				}
 			}
 		}
