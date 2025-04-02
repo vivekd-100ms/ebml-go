@@ -16,6 +16,7 @@ package mkvcore
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"sync"
 
@@ -73,6 +74,9 @@ func NewSimpleBlockWriter(w0 io.WriteCloser, tracks []TrackDescription, opts ...
 		BlockReadWriterOptions: BlockReadWriterOptions{
 			onFatal: func(err error) {
 				panic(err)
+			},
+			onError: func(err error) {
+				fmt.Printf("blockwriter error: %v", err)
 			},
 		},
 		ebmlHeader:  nil,
